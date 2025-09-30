@@ -4,7 +4,6 @@
 use core::panic::PanicInfo;
 
 /// Kernel entry point
-// SAFETY: `kernel_main` is unique; no symbol conflicts
 #[unsafe(no_mangle)]
 pub extern "C" fn kernel_main() -> ! {
     let vga_buffer = 0xb8000 as *mut u8;

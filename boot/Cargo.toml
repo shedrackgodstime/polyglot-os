@@ -4,4 +4,5 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-# No dependencies for minimal bootloader
+log = "0.4"
+uefi = { version = "0.35", features = ["panic_handler", "logger"] }
