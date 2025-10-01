@@ -6,24 +6,18 @@ A modern operating system kernel written in Rust (edition 2024) for x86_64 archi
 
 ```
 polyglot-os/
-├── boot/                    # UEFI Bootloader (using uefi-rs crate)
-│   ├── Cargo.toml          # Dependencies: uefi, log
+├── boot/              # Limine bootloader config
+│   ├── limine.cfg
+│   └── Makefile.limine  (helper, optional)
+├── kernel/            # Rust kernel
 │   └── src/
-│       └── main.rs         # UEFI boot entry point
-├── kernel/                  # Kernel (Rust no_std, bare-metal)
-│   ├── Cargo.toml
-│   ├── kernel.json         # Custom x86_64 target specification
-│   ├── linker.ld           # Kernel linker script
-│   └── src/
-│       ├── lib.rs          # Kernel library code
-│       └── main.rs         # Kernel entry point
-├── esp/                     # EFI System Partition (auto-generated)
-│   └── efi/boot/
-│       └── bootx64.efi     # UEFI bootloader binary
-├── rust-toolchain.toml     # Rust toolchain configuration
-├── Cargo.toml              # Workspace configuration
-├── Makefile                # Build automation
-└── README.md
+│       └── main.rs
+├── build/             # auto-generated build artifacts
+├── Cargo.toml         # Rust workspace
+├── Makefile           # top-level build automation
+└── rust-toolchain.toml
+
+
 ```
 
 ## Features
