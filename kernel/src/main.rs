@@ -1,55 +1,55 @@
 #![no_std]
 #![no_main]
 
-use core::panic::PanicInfo;
-
-// Module declarations
-mod boot;
+// Import modules
+mod graphics;
+mod panic;
 mod serial;
-mod framebuffer;
 
-/// Kernel entry point
-/// Called by the Limine bootloader after initialization
+use limine::request::{FramebufferRequest, StackSizeRequest};
+
+// Set the base revision to 3 (latest)
+#[used]
+#[link_section = ".limine_requests"]
+static BASE_REVISION: limine::BaseRevision = limine::BaseRevision::new();
+
+// Request a framebuffer
+#[used]
+#[link_section = ".limine_requests"]
+static FRAMEBUFFER_REQUEST: FramebufferRequest = FramebufferRequest::new();
+
+// Request a larger stack
+#[used]
+#[link_section = ".limine_requests"]
+static STACK_SIZE_REQUEST: StackSizeRequest = StackSizeRequest::new().with_size(0x100000);
+
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
-    // Initialize serial port for debug output
+    // Initialize serial port for logging
     serial::init();
-    serial::write_str("Polyglot OS booting...\n");
+    serial::print("Polyglot OS booting...\n");
 
-    // Check if the bootloader supports our base revision
-    if !boot::BASE_REVISION.is_supported() {
-        serial::write_str("ERROR: Bootloader does not support base revision!\n");
-        hcf();
+    // Ensure the bootloader supports our base revision
+    if !BASE_REVISION.is_supported() {
+        panic::hcf();
     }
 
-    serial::write_str("Base revision supported!\n");
+    serial::print("Base revision supported!\n");
 
-    // Get framebuffer and draw graphics
-    if let Some(framebuffer_response) = boot::FRAMEBUFFER_REQUEST.get_response() {
-        serial::write_str("Framebuffer response received!\n");
-        framebuffer::draw(framebuffer_response);
-    } else {
-        serial::write_str("No framebuffer available!\n");
-    }
-
-    serial::write_str("Kernel initialized successfully!\n");
-    serial::write_str("Halting CPU...\n");
-
-    hcf();
-}
-
-/// Halt and catch fire - infinite loop with CPU halt instruction
-fn hcf() -> ! {
-    loop {
-        unsafe {
-            core::arch::asm!("hlt");
+    // Draw to framebuffer if available
+    if let Some(framebuffer_response) = FRAMEBUFFER_REQUEST.get_response() {
+        serial::print("Framebuffer response received!\n");
+        if let Some(framebuffer) = framebuffer_response.framebuffers().next() {
+            serial::print("Drawing to framebuffer...\n");
+            graphics::draw(framebuffer);
+            serial::print("Framebuffer drawing complete!\n");
         }
+    } else {
+        serial::print("No framebuffer available!\n");
     }
-}
 
-/// Panic handler - called when the kernel panics
-#[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    serial::write_str("KERNEL PANIC!\n");
-    hcf()
+    serial::print("Kernel initialized successfully! Halting.\n");
+
+    // Halt the system
+    panic::hcf();
 }
