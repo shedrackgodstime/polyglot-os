@@ -53,14 +53,33 @@ $(IMAGE): image
 # Run in QEMU with OVMF UEFI firmware
 run: $(IMAGE)
 	@echo "Starting Polyglot OS in QEMU..."
-	@if [ -f /usr/share/OVMF/OVMF.fd ]; then \
-		echo "Using UEFI (OVMF)"; \
+	@if [ -f /usr/share/ovmf/OVMF.fd ]; then \
+		echo "Using UEFI (OVMF) - /usr/share/ovmf/OVMF.fd"; \
 		qemu-system-x86_64 \
 		    -drive format=raw,file=$(IMAGE) \
 		    -m 256M \
 		    -serial stdio \
 		    -no-reboot \
-		    -bios /usr/share/OVMF/OVMF.fd \
+		    -bios /usr/share/ovmf/OVMF.fd \
+		    -display gtk,grab-on-hover=off; \
+	elif [ -f /usr/share/qemu/OVMF.fd ]; then \
+		echo "Using UEFI (OVMF) - /usr/share/qemu/OVMF.fd"; \
+		qemu-system-x86_64 \
+		    -drive format=raw,file=$(IMAGE) \
+		    -m 256M \
+		    -serial stdio \
+		    -no-reboot \
+		    -bios /usr/share/qemu/OVMF.fd \
+		    -display gtk,grab-on-hover=off; \
+	elif [ -f /usr/share/OVMF/OVMF_CODE.fd ]; then \
+		echo "Using UEFI (OVMF) - split code/vars"; \
+		qemu-system-x86_64 \
+		    -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE.fd \
+		    -drive if=pflash,format=raw,file=/tmp/OVMF_VARS.fd \
+		    -drive format=raw,file=$(IMAGE) \
+		    -m 256M \
+		    -serial stdio \
+		    -no-reboot \
 		    -display gtk,grab-on-hover=off; \
 	else \
 		echo "OVMF not found, falling back to BIOS (SeaBIOS)"; \
