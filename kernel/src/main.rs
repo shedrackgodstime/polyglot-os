@@ -10,20 +10,20 @@ use limine::request::{FramebufferRequest, StackSizeRequest};
 
 // Set the base revision to 3 (latest)
 #[used]
-#[link_section = ".limine_requests"]
+#[unsafe(link_section = ".limine_requests")]
 static BASE_REVISION: limine::BaseRevision = limine::BaseRevision::new();
 
 // Request a framebuffer
 #[used]
-#[link_section = ".limine_requests"]
+#[unsafe(link_section = ".limine_requests")]
 static FRAMEBUFFER_REQUEST: FramebufferRequest = FramebufferRequest::new();
 
 // Request a larger stack
 #[used]
-#[link_section = ".limine_requests"]
+#[unsafe(link_section = ".limine_requests")]
 static STACK_SIZE_REQUEST: StackSizeRequest = StackSizeRequest::new().with_size(0x100000);
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn _start() -> ! {
     // Initialize serial port for logging
     serial::init();
@@ -41,7 +41,7 @@ pub extern "C" fn _start() -> ! {
         serial::print("Framebuffer response received!\n");
         if let Some(framebuffer) = framebuffer_response.framebuffers().next() {
             serial::print("Drawing to framebuffer...\n");
-            graphics::draw(framebuffer);
+            graphics::draw(&framebuffer);
             serial::print("Framebuffer drawing complete!\n");
         }
     } else {

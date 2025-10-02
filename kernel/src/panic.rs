@@ -2,7 +2,7 @@ use core::panic::PanicInfo;
 
 /// Halts the CPU indefinitely.
 /// This function is used when the kernel encounters an unrecoverable error.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub fn hcf() -> ! {
     loop {
         unsafe {

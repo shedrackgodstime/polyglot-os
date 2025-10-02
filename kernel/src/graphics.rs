@@ -1,4 +1,4 @@
-use limine::response::Framebuffer;
+use limine::framebuffer::Framebuffer;
 
 /// Draws a pattern to the screen using the provided framebuffer.
 pub fn draw(framebuffer: &Framebuffer) {
@@ -77,8 +77,10 @@ unsafe fn fill_screen(
 ) {
     for y in 0..height {
         for x in 0..width {
-            let offset = y * (pitch / 4) + x;
-            *fb_ptr.add(offset) = color;
+            unsafe {
+                let offset = y * (pitch / 4) + x;
+                *fb_ptr.add(offset) = color;
+            }
         }
     }
 }
@@ -95,8 +97,10 @@ unsafe fn draw_rect(
 ) {
     for y in y_pos..(y_pos + height) {
         for x in x_pos..(x_pos + width) {
-            let offset = y * (pitch / 4) + x;
-            *fb_ptr.add(offset) = color;
+            unsafe {
+                let offset = y * (pitch / 4) + x;
+                *fb_ptr.add(offset) = color;
+            }
         }
     }
 }
