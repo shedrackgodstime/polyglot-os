@@ -12,7 +12,7 @@ all: $(IMAGE)
 # Build the kernel ELF
 $(KERNEL_BIN):
 	@mkdir -p build
-	$(CARGO) build -Zbuild-std=core,alloc,compiler_builtins \
+	$(CARGO) build -Zbuild-std=core,compiler_builtins \
 	    --target $(TARGET) --release
 	cp target/$(TARGET)/release/kernel $(KERNEL_BIN)
 
@@ -40,7 +40,7 @@ image: $(KERNEL_BIN) setup-limine
 	@mmd -i $(IMAGE)@@1M ::/boot/limine
 	@mmd -i $(IMAGE)@@1M ::/EFI
 	@mmd -i $(IMAGE)@@1M ::/EFI/BOOT
-	@mcopy -i $(IMAGE)@@1M $(KERNEL_BIN) ::/boot/kernel.elf
+	@mcopy -i $(IMAGE)@@1M $(KERNEL_BIN) ::/kernel.elf
 	@mcopy -i $(IMAGE)@@1M boot/limine.conf ::/boot/limine/limine.conf
 	@mcopy -i $(IMAGE)@@1M $(LIMINE_DIR)/BOOTX64.EFI ::/EFI/BOOT/BOOTX64.EFI 2>/dev/null || true
 	@mcopy -i $(IMAGE)@@1M $(LIMINE_DIR)/limine-bios.sys ::/boot/limine/limine-bios.sys 2>/dev/null || true
@@ -89,7 +89,14 @@ run: $(IMAGE)
 		    -serial stdio \
 		    -no-reboot \
 		    -display gtk,grab-on-hover=off; \
-	fi
+	fi 
+
+# Test .....
+test: 
+
+
+
+
 
 # Clean everything
 clean:

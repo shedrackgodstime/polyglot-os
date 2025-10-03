@@ -3,6 +3,8 @@
 //! This module provides physical and virtual memory management for the kernel.
 
 pub mod physical;
+pub mod paging;
+pub mod heap;
 
 use limine::memory_map::EntryType;
 use limine::request::MemoryMapRequest;
@@ -73,6 +75,14 @@ pub fn init() {
     
     // Initialize physical frame allocator
     physical::init(entries);
+    // Initialize paging using HHDM
+    crate::serial::print("Initializing paging...\n");
+    paging::init();
+    crate::serial::print("Paging initialized.\n");
+    // Initialize kernel heap
+    crate::serial::print("Initializing heap...\n");
+    heap::init();
+    crate::serial::print("Heap initialized.\n");
     
     crate::serial::print("Memory management initialized!\n");
 }
